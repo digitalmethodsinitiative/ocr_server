@@ -1,6 +1,7 @@
 # Dev
 *.ipynb
 *.pyc
+*.idea
 
 # Data
 images/*
