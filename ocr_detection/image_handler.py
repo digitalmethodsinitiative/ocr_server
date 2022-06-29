@@ -6,6 +6,8 @@ import keras_ocr
 import threading
 import time
 import traceback
+from pathlib import Path
+from werkzeug.datastructures import FileStorage
 
 from common.exceptions import TextDetectionException
 
@@ -34,20 +36,36 @@ class ImageTextDetector():
         self.pipeline = keras_ocr.pipeline.Pipeline()
         self.log = log
 
-    def process_image(image):
+    def process_image(self, image_file):
         """
         Take image, return text!
         """
+        filename = get_image_filename(image_file)
+        try:
+            image = self.preprocess_image(image_file)
+        except Exception as e:
+            raise TextDetectionException("Unable to read image %s: %s" % (filename, str(e)))
 
-        image = preprocess_image(image)
         annotations = self.annotate_image(image)
-        if not annotations:
-            raise TextDetectionException("Unable to detect text in image %s" % image.name)
-        annotations = {"file_name": image.name, **annotations}
+        annotations = {"filename": filename, **annotations}
 
         return annotations
 
-    def annotate_image(self, image_file, pipeline):
+    def preprocess_image(self, image_file):
+        """
+        Do any preprocessing of image that is needed.
+        """
+        self.log.debug("Reading image %s" % get_image_filename(image_file))
+        if type(image) == Path:
+            preprocessed_image = keras_ocr.tools.read(str(image_file))
+        elif type(image) == FileStorage:
+            preprocessed_image = keras_ocr.tools.read(image_file)
+        else:
+            # Might as well try...
+            preprocessed_image = keras_ocr.tools.read(image_file)
+        return preprocessed_image
+
+    def annotate_image(self, image):
         """
         Get text from models
 
@@ -55,55 +73,17 @@ class ImageTextDetector():
         :param keras_ocr.pipeline pipeline:  Pipeline to run images through
         :return dict:  List of word groupings
         """
+        self.log.debug("Making predictions")
+        predictions = self.pipeline.recognize([image])[0]
 
-        try:
-            self.log.info("Reading image")
-            img = keras_ocr.tools.read(str(image_file))
-
-            # All this for one damn timeout...
-            prediction_holder = PredictionHolder(pipeline, self.log)
-            self.log.info("Create thread")
-            x = threading.Thread(target=prediction_holder.make_predictions, args=(img,))#, daemon=True)
-            self.log.info("Start thread")
-            x.start()
-
-            # # JOIN WILL NOT WORK!
-            # # program hangs and seems to ignore the timeout=60.0
-            # self.log.info("Join thread")
-            # x.join(60.0)
-
-            # old school wait
-            for i in range(60):
-                if x.is_alive():
-                    self.log.info(f"Waiting: {i}")
-                    time.sleep(1)
-                else:
-                    self.log.info("Thread completed successfully")
-                    break
-
-            if x.is_alive():
-                self.log.warning("Thread still running...")
-                # By running as a daemon, if this process ends, the thread will also cease to exist
-                # We could use threading.Event to tell it to terminate, but there is no loop or anything.
-                # The thread starts keras_ocr.pipeline.recognize and that's all.
-            # else:
-            #     self.log.info("Thread completed successfully")
-
-            if prediction_holder.predictions:
-                self.log.info("Grouping text")
-                text_groups = self.create_text_groups(prediction_holder.predictions)
-                self.log.info("Removing position information")
-                text = self.remove_positional_information(text_groups)
-                return {'text' : text}
-            else:
-                self.log.info("No predictions returned")
-                # No predictions made
-                return False
-
-        except Exception as e:
-            # Certain image filetypes will not process; collecting types of errors to review
-            self.log.error("Error with image %s: %s" % (image_file.name, str(e)))
-            return False
+        if predictions:
+            self.log.debug("Grouping text")
+            text_groups = self.create_text_groups(predictions)
+            self.log.debug("Removing position information")
+            text = self.remove_positional_information(text_groups)
+            return {'simplified_text' : text, 'raw_output': predictions}
+        else:
+            raise TextDetectionException("No predictions returned")
 
     def create_text_groups(self, text_from_image):
         """
@@ -184,11 +164,17 @@ class ImageTextDetector():
         text['raw_text'] = '\n\n'.join(['\n'.join([' '.join([word.word for word in line.original]) for line in group]) for group in text_groups])
         return text
 
-    def preprocess_image(image):
+    def get_image_filename(image):
         """
-        Do any preprocessing of image that is needed.
+        Get filename for different types
         """
-        return image
+        if type(image) == Path:
+            filename = image.name
+        elif type(image) == FileStorage:
+            filename = image.filename
+        else:
+            filename = 'unknown'
+        return filename
 
 class SimpleBox():
     """
@@ -214,18 +200,3 @@ class BigBox():
         self.right = max([i.right for i in list_of_simple_boxes])
         self.height = self.bottom - self.top
         self.center = ((self.right - self.left)/2) + self.left
-
-class PredictionHolder():
-    """
-    To pass to thread for prediction. A new holder should be created for each
-    prediction.
-    """
-    def __init__(self, pipeline, log):
-        self.predictions = None
-        self.pipeline = pipeline
-        self.log = log
-
-    def make_predictions(self, img):
-        self.log.debug("Making predictions")
-        self.predictions = self.pipeline.recognize([img])[0]
-        self.log.debug("Predictions complete")
