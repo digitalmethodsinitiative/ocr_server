@@ -1,2 +1,7 @@
 # Dev
 *.ipynb
+*.pyc
+
+# Data
+images/*
+*.log
