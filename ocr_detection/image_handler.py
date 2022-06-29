@@ -40,7 +40,7 @@ class ImageTextDetector():
         """
         Take image, return text!
         """
-        filename = get_image_filename(image_file)
+        filename = self.get_image_filename(image_file)
         try:
             image = self.preprocess_image(image_file)
         except Exception as e:
@@ -55,10 +55,10 @@ class ImageTextDetector():
         """
         Do any preprocessing of image that is needed.
         """
-        self.log.debug("Reading image %s" % get_image_filename(image_file))
-        if type(image) == Path:
+        self.log.debug("Reading image %s" % self.get_image_filename(image_file))
+        if type(image_file) == Path:
             preprocessed_image = keras_ocr.tools.read(str(image_file))
-        elif type(image) == FileStorage:
+        elif type(image_file) == FileStorage:
             preprocessed_image = keras_ocr.tools.read(image_file)
         else:
             # Might as well try...
@@ -164,7 +164,7 @@ class ImageTextDetector():
         text['raw_text'] = '\n\n'.join(['\n'.join([' '.join([word.word for word in line.original]) for line in group]) for group in text_groups])
         return text
 
-    def get_image_filename(image):
+    def get_image_filename(self, image):
         """
         Get filename for different types
         """
