@@ -82,11 +82,12 @@ def limit_remote_addr():
         # No whitelist = access for all
         return
 
+
 # Set default OCR model
 app.config['DEFAULT_MODEL'] = config_data.get('DEFAULT_MODEL', 'paddleocr')
 
 # Instantiate our OCR detector
-detector = ImageTextDetector(app.logger)
+detector = ImageTextDetector(app)
 
 # Import flask API endpoints
 import server.api

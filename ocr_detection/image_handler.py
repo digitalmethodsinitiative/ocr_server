@@ -1,7 +1,10 @@
 """
 Handles images and uses OCR models to detect and extract text
 """
+import os
+
 from ocr_detection.keras_ocr_model import KerasOCRPipeline
+from ocr_detection.paddle_ocr_model import PaddlesOCRPipeline
 
 from common.exceptions import TextDetectionException, OCRModelTypeNotAvailableException
 from common.helper_functions import get_image_filename
@@ -18,8 +21,9 @@ class ImageTextDetector:
 
     Handles text detection for different loaded models.
     """
-    def __init__(self, log):
-        self.log = log
+    def __init__(self, app):
+        self.log = app.logger
+        self.app = app
 
         # Load models
         self.keras_ocr = KerasOCRPipeline(self.log)
@@ -42,6 +46,11 @@ class ImageTextDetector:
         """
         filename = get_image_filename(image_file)
         model = self.get_model(model_type)
+
+        if model_type == 'paddle_ocr':
+            # Must download image first
+            image_file.save(os.path.join(self.app.config['IMAGE_FOLDER'], get_image_filename(image_file)))
+            image_file = os.path.join(self.app.config['IMAGE_FOLDER'], get_image_filename(image_file))
 
         try:
             image = model.preprocess_image(image_file)

@@ -3,11 +3,10 @@ keras-ocr python package used to detect text in images
 """
 from paddleocr import PaddleOCR
 from pathlib import Path
-from werkzeug.datastructures import FileStorage
-from common.helper_functions import get_image_filename
+import os
 
 from common.exceptions import TextDetectionException
-
+from common.helper_functions import get_image_filename
 
 __author__ = "Dale Wahl"
 __credits__ = ["Dale Wahl"]
@@ -36,8 +35,7 @@ class PaddlesOCRPipeline:
         """
         Do any preprocessing of image that is needed.
         """
-        self.log.debug("Reading image %s" % get_image_filename(image_file))
-        # PaddleOCR does not appear to require any preprocessing (or does it elsewhere)
+        # No additional preprocessing
         return image_file
 
     def annotate_image(self, image):
@@ -50,11 +48,14 @@ class PaddlesOCRPipeline:
         """
         self.log.debug("Making predictions")
         # Currently making cls=False; found that cls=True can cause poor preditions for left to right text
-        predictions = ocr.ocr(img_path, cls=False)
+        predictions = self.ocr.ocr(str(image), cls=False)
+
+        # Remove temp image
+        #
 
         if predictions:
             self.log.debug("Grouping text")
-            text_groups = self.create_text_groups(predictions)
+            text_groups = self.create_text_groups(predictions[0])
             self.log.debug("Removing position information")
             text = self.remove_positional_information(text_groups)
             return {'simplified_text' : text, 'raw_output': predictions}
