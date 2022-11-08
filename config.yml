@@ -1,6 +1,8 @@
 LOG_NAME: ocr_server.log
 LOG_LEVEL: DEBUG
 
+FLASK_SECRET_KEY: secret key
+
 TRUSTED_PROXIES: # Be sure to include Docker proxy (e.g., 172.17.0.1 )
   - 172.17.0.1
 

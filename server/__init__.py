@@ -47,7 +47,7 @@ app.logger.setLevel(levels[config_data.get('LOG_LEVEL', 'INFO')])
 # app.logger.critical('this is a CRITICAL message')
 
 # Config app
-app.secret_key = "secret key"
+app.secret_key = config_data.get('FLASK_SECRET_KEY')
 # Set upload folder
 path = os.getcwd()
 app.config['IMAGE_FOLDER'] = os.path.join(path, 'images')
@@ -90,5 +90,9 @@ detector = ImageTextDetector(app.logger)
 import server.api
 
 if __name__ == "__main__":
+    # Flask started directly
     print('Starting server...')
     app.run(host='0.0.0.0', debug=True)
+else:
+    # Gunicorn starting server
+    app.logger.info('Starting server...')
