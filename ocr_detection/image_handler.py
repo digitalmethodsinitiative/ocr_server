@@ -23,13 +23,14 @@ class ImageTextDetector:
 
         # Load models
         self.keras_ocr = KerasOCRPipeline(self.log)
+        self.paddle_ocr = PaddlesOCRPipeline(self.log)
 
     def get_model(self, model_type):
         """
         Select model
         """
-        # if model_type == 'paddle_ocr':
-        #     return self.paddle_ocr
+        if model_type == 'paddle_ocr':
+            return self.paddle_ocr
         if model_type == 'keras_ocr':
             return self.keras_ocr
         else:
