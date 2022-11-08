@@ -15,5 +15,7 @@ setup(
         'pyyaml',
         'flask',
         'tensorflow',
+        'paddlepaddle',
+        'paddleocr',
     ]
 )
