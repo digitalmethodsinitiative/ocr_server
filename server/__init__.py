@@ -1,6 +1,5 @@
 from flask import Flask, abort, request
 import logging
-import sys
 import os
 import yaml
 
@@ -82,6 +81,9 @@ def limit_remote_addr():
     else:
         # No whitelist = access for all
         return
+
+# Set default OCR model
+app.config['DEFAULT_MODEL'] = config_data.get('DEFAULT_MODEL', 'paddleocr')
 
 # Instantiate our OCR detector
 detector = ImageTextDetector(app.logger)

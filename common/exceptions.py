@@ -7,6 +7,12 @@ class OCRDetectionException(OCRServerException):
 	"""
 	pass
 
+class OCRModelTypeNotAvailableException(OCRServerException):
+	"""
+	Model Type not available
+	"""
+	pass
+
 class TextDetectionException(OCRDetectionException):
 	"""
 	Unable to detect text in image

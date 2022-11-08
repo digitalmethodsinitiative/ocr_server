@@ -1,5 +1,6 @@
 # Dev
 *.ipynb
+*.ipynb_checkpoints/
 *.pyc
 *.idea
 
