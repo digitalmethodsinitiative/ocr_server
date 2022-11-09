@@ -1,5 +1,5 @@
 """
-keras-ocr python package used to detect text in images
+paddle_ocr python package used to detect text in images
 """
 from paddleocr import PaddleOCR
 from pathlib import Path
@@ -16,13 +16,8 @@ __email__ = "4cat@oilab.eu"
 
 class PaddlesOCRPipeline:
     """
-    This processor uses Optical Character Recognition (OCR) to first detect
-    areas of an image that may contain text with the pretrained Character-Region
-    Awareness For Text (CRAFT) detection model and then attempts to predict the
-    text inside each area using Keras' implementation of a Convolutional
-    Recurrent Neural Network (CRNN) for text recognition. Once words are
-    predicted, an algorythm attempts to sort them into likely groupings based
-    on locations within the original image.
+    This processor uses the PaddleOCR package (https://github.com/PaddlePaddle/PaddleOCR#readme)
+    to extract text from images.
     """
     def __init__(self, log):
         ## Paddleocr supports Chinese, English, French, German, Korean and Japanese.

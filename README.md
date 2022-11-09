@@ -36,6 +36,8 @@ filename = 'any/dir/to/image.jpg'
 
 with open(filename, "rb") as infile:
     api_response = requests.post(server + 'api/detect_text', files={'image': infile})
+    # To specify a model type, you can use `paddle_ocr` or `keras_ocr` like so
+    #api_response = requests.post(server + 'api/detect_text', files={'image': infile}, data={'model_type': 'paddle_ocr'})
 ```
 
 The `api_response` should return a `200` status code and a JSON object containing
@@ -44,8 +46,14 @@ of `groupings` and the `raw_text` alone.
 
 # Available OCR models
 
-Currently, the OCR Server uses the keras-ocr package ([Keras OCR Documentation]( https://keras-ocr.readthedocs.io/en/latest/))
-which first detects areas of an image that may contain text with the pretrained
+Currently, the OCR Server has two available models that can be selected.
+
+1. PaddleOCR: [The PaddleOCR package](https://github.com/PaddlePaddle/PaddleOCR#readme) provides access
+to a [number of different OCR models](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_en/models_list_en.md).
+We currently only support the english PP-OCRv3 model, but adding support for
+other languages is possible if there is a desire (and they exist).
+2. Keras-OCR: The keras-ocr package ([Keras OCR Documentation]( https://keras-ocr.readthedocs.io/en/latest/))
+ first detects areas of an image that may contain text with the pretrained
 [Character-Region Awareness For Text (CRAFT) text detection model](https://github.com/clovaai/CRAFT-pytorch)
 and then attempts to predict the text inside each area using [Keras' implementation of a Convolutional Recurrent Neural
 Network (CRNN) model](https://github.com/kurapan/CRNN) for text recognition. Once words are predicted, we developed an
