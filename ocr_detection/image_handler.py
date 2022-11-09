@@ -26,6 +26,7 @@ class ImageTextDetector:
         self.app = app
 
         # Load models
+        # We are loading here as it can be time consuming in general and, for the first run, needs to download models
         self.keras_ocr = KerasOCRPipeline(self.log)
         self.paddle_ocr = PaddlesOCRPipeline(self.log)
 

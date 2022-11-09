@@ -28,6 +28,8 @@ class PaddlesOCRPipeline:
         ## Paddleocr supports Chinese, English, French, German, Korean and Japanese.
         # You can set the parameter `lang` as `ch`, `en`, `fr`, `german`, `korean`, `japan`
         # to switch the language model in order.
+        # TODO: how do we want to handle language parameter? Perhaps only load other language models if requested
+        # TODO: download can cause Gunicorn timeout! It seems the worker restarts and picks up download on where it left off, but we may want to spin off a process for the first run to trigger downloads!
         self.ocr = PaddleOCR(use_angle_cls=True, lang='en') # need to run only once to download and load model into memory
         self.log = log
 
@@ -47,7 +49,7 @@ class PaddlesOCRPipeline:
         :return dict:  List of word groupings
         """
         self.log.debug("Making predictions")
-        # Currently making cls=False; found that cls=True can cause poor preditions for left to right text
+        # Currently making cls=False; found that cls=True can cause poor predictions for left to right text
         predictions = self.ocr.ocr(str(image), cls=False)
 
         # Remove temp image
