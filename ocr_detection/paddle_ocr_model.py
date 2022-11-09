@@ -55,12 +55,12 @@ class PaddlesOCRPipeline:
         # Remove temp image
         #
 
-        if predictions:
+        if predictions[0]:
             self.log.debug("Grouping text")
             text_groups = self.create_text_groups(predictions[0])
             self.log.debug("Removing position information")
             text = self.remove_positional_information(text_groups)
-            return {'simplified_text' : text, 'raw_output': predictions}
+            return {'simplified_text': text, 'raw_output': predictions}
         else:
             raise TextDetectionException("No predictions returned")
 
