@@ -50,6 +50,10 @@ app.secret_key = config_data.get('FLASK_SECRET_KEY')
 # Set upload folder
 path = os.getcwd()
 app.config['IMAGE_FOLDER'] = os.path.join(path, 'images')
+# Make dir if does not exist
+for folder in [app.config['IMAGE_FOLDER']]:
+    if not os.path.isdir(folder):
+        os.makedirs(folder)
 
 # Limit size of upload; 16 * 1024 * 1024 is 16 megabytes
 #app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
