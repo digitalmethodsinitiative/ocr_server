@@ -1,3 +1,4 @@
+import json
 from flask import request, jsonify
 from werkzeug.utils import secure_filename
 
@@ -36,9 +37,15 @@ def upload_photo_api():
             app.logger.error(str(e))
             return jsonify({'reason': 'Unable to process request'}), 500
 
-        # Remove the raw_output which is not a jsonifable object
-        # TODO modify and return?
-        del annotations['raw_output']
+        # Check that raw_output is a jsonifable object
+        try:
+            annotations['raw_output'] = json.dumps(annotations['raw_output'])
+        except TypeError as e:
+            if 'is not JSON serializable' in str(e):
+                app.logger.warning('Model %s returning non JSON serializable objects: %s' % (model_type, str(e)))
+            else:
+                app.logger.error(e)
+            del annotations['raw_output']
 
         # Return the text annotations
         return annotations, 200

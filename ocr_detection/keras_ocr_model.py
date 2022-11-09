@@ -4,7 +4,7 @@ keras-ocr python package used to detect text in images
 import keras_ocr
 from pathlib import Path
 from werkzeug.datastructures import FileStorage
-from common.helper_functions import get_image_filename
+from common.helper_functions import get_image_filename, make_jsonifiable
 
 from common.exceptions import TextDetectionException
 
@@ -66,7 +66,8 @@ class KerasOCRPipeline:
             text_groups = self.create_text_groups(predictions)
             self.log.debug("Removing position information")
             text = self.remove_positional_information(text_groups)
-            return {'simplified_text' : text, 'raw_output': predictions}
+            return make_jsonifiable({'simplified_text': text,
+                    'raw_output': predictions})
         else:
             raise TextDetectionException("No predictions returned")
 
