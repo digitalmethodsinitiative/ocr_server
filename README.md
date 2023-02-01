@@ -17,6 +17,7 @@ The OCR Server runs in a Docker container.
 6. Run `docker run --publish 4000:80 --name ocr_server --detach ocr_server`
  - This creates a running container of the `ocr_server` image
  - `--publish 4000:80` opens port `4000` on your machine and connects it to port `80` in the container; you may update `4000` to any port you wish
+ - Add a [restart policy](https://docs.docker.com/config/containers/start-containers-automatically/) such as `--restart unless-stopped` and the OCR container will restart if host server is rebooted, Docker crashes, etc.
 
 # Usage
 
