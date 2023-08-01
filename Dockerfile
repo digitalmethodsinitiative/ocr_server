@@ -15,5 +15,9 @@ RUN python -m pip install --upgrade pip && python -m pip install -r requirements
 # Download the models
 RUN python helpers/download_models.py --models keras_ocr paddle_ocr
 
+# Create data directory for output
+RUN mkdir /app/data/
+RUN mkdir /app/temp/
+
 # Or Start gunicorn server on startup
 CMD ["python", "-m", "gunicorn", "--worker-tmp-dir", "/dev/shm", "--workers=1", "--threads=4", "--worker-class=gthread", "--log-level=debug", "--reload", "--bind", "0.0.0.0:80", "server:app"]
