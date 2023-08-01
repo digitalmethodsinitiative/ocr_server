@@ -91,7 +91,10 @@ def limit_remote_addr():
 app.config['DEFAULT_MODEL'] = config_data.get('DEFAULT_MODEL', 'paddleocr')
 
 # Instantiate our OCR detector
-detector = ImageTextDetector(app)
+detector = ImageTextDetector(logger=app.logger, temp_image_dir=app.config['IMAGE_FOLDER'])
+# Load models on startup
+for model in ['paddle_ocr', 'keras_ocr']:
+    detector.get_model(model_type=model)
 
 # Import flask API endpoints
 import server.api
