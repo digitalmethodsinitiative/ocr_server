@@ -11,8 +11,10 @@ def get_image_filename(image):
         filename = image.name
     elif type(image) == FileStorage:
         filename = image.filename
+    elif type(image) == str:
+        filename = Path(image).name
     else:
-        filename = 'unknown'
+        filename = "unknown"
     return filename
 
 

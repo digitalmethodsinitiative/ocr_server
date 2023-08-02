@@ -55,23 +55,30 @@ class ImageTextDetector:
         """
         filename = get_image_filename(image_file)
         model = self.get_model(model_type)
+        results = {"filename": filename,
+                   'model_type': model_type}
 
         if model_type == 'paddle_ocr' and not local:
             if self.temp_image_dir:
                 # Must download image first
-                image_file.save(os.path.join(self.temp_image_dir, get_image_filename(image_file)))
-                image_file = os.path.join(self.temp_image_dir, get_image_filename(image_file))
+                image_file.save(os.path.join(self.temp_image_dir, filename))
+                image_file = os.path.join(self.temp_image_dir, filename)
             else:
                 raise TextDetectionException('Paddle OCR requires a temporary image download folder to be set')
 
         try:
             image = model.preprocess_image(image_file)
         except TextDetectionException as e:
-            raise TextDetectionException("Unable to read image %s: %s" % (filename, str(e)))
+            annotations = {"success": False, "error": str(e)}
+            results.update(annotations)
+            return results
 
-        annotations = model.annotate_image(image)
-        annotations = {"filename": filename,
-                       'model_type': model_type,
-                       **annotations}
+        try:
+            annotations = model.annotate_image(image)
+            annotations["success"] = True
+        except TextDetectionException as e:
+            # No text found
+            annotations = {"success": False, "error": str(e)}
 
-        return annotations
+        results.update(annotations)
+        return results
