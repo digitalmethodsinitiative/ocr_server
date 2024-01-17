@@ -1,4 +1,5 @@
-FROM python:3.8-buster
+# FROM python:3.8-buster
+FROM nvidia/cuda:12.1.1-runtime-ubuntu20.04
 
 # Set working Dir
 WORKDIR /app/
@@ -7,13 +8,17 @@ WORKDIR /app/
 COPY . /app/
 
 # RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
-RUN apt-get update && apt-get install libgl1 -y
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -yq \
+    libgl1 \
+    libglib2.0-0 \
+    python3 \
+    pip
 
 # Install pixplot and additional python libraries
-RUN python -m pip install --upgrade pip && python -m pip install -r requirements.txt
+RUN python3 -m pip install --upgrade pip && python3 -m pip install -r requirements.txt
 
 # Download the models
-RUN python helpers/download_models.py --models keras_ocr paddle_ocr
+RUN python3 helpers/download_models.py --models keras_ocr paddle_ocr
 
 # Create data directory for output
 RUN mkdir /app/data/
