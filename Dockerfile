@@ -18,7 +18,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -yq \
 RUN python3 -m pip install --upgrade pip && python3 -m pip install -r requirements.txt
 
 # Download the models
-RUN python3 helpers/download_models.py --models keras_ocr paddle_ocr
+RUN python3 helpers/download_models.py --models paddle_ocr
 
 # Create data directory for output
 RUN mkdir /app/data/

@@ -3,9 +3,6 @@ Handles images and uses OCR models to detect and extract text
 """
 import os
 
-from ocr_detection.keras_ocr_model import KerasOCRPipeline
-from ocr_detection.paddle_ocr_model import PaddlesOCRPipeline
-
 from common.exceptions import TextDetectionException, OCRModelTypeNotAvailableException
 from common.helper_functions import get_image_filename
 
@@ -36,10 +33,12 @@ class ImageTextDetector:
         """
         if model_type == 'paddle_ocr':
             if self.paddle_ocr is None:
+                from ocr_detection.paddle_ocr_model import PaddlesOCRPipeline
                 self.paddle_ocr = PaddlesOCRPipeline(self.log)
             return self.paddle_ocr
         if model_type == 'keras_ocr':
             if self.keras_ocr is None:
+                from ocr_detection.keras_ocr_model import KerasOCRPipeline
                 self.keras_ocr = KerasOCRPipeline(self.log)
             return self.keras_ocr
         else:
