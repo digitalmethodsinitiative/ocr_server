@@ -1,6 +1,6 @@
 import argparse
 from pathlib import Path
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 import logging
 import json
 
