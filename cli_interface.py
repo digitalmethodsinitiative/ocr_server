@@ -1,5 +1,6 @@
 import argparse
 from pathlib import Path
+from PIL import Image
 import logging
 import json
 
@@ -37,7 +38,32 @@ if __name__ == "__main__":
         exit(1)
 
     for image in args.images:
+        # Check if image exists and can be opened
+        image_path = Path(image)
+        error = None
+        if not image_path.exists():
+            print(f"Image does not exist: {image}")
+            error = "Image does not exist"
+        else:
+            try:
+                with Image.open(image):
+                    pass
+            except Exception as e:
+                print(f"Error opening image: {image}")
+                error = str(e)
+        if error:
+            if output_dir:
+                with open(output_dir.joinpath(image_path.with_suffix(".json").name), "w") as out_file:
+                    out_file.write(json.dumps({
+                        "filename": image_path.name,
+                        'model_type': args.model,
+                        "success": False,
+                        "error": error
+                    }))
+            continue
+
+        # Process image
         prediction = detector.process_image(image, args.model, local=True)
         if output_dir:
-            with open(output_dir.joinpath(Path(image).with_suffix(".json").name), "w") as out_file:
+            with open(output_dir.joinpath(image_path.with_suffix(".json").name), "w") as out_file:
                 out_file.write(json.dumps(prediction))

@@ -1,7 +1,7 @@
 LOG_NAME: ocr_server.log
 LOG_LEVEL: DEBUG
 
-FLASK_SECRET_KEY: secret key
+FLASK_SECRET_KEY: secret_key
 
 DEFAULT_MODEL: paddle_ocr
 
